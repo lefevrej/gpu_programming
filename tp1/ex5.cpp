@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
-#include <math.h>
 #include <chrono>
 #include <X11/Xlib.h>
 
