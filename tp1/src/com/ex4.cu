@@ -1,4 +1,4 @@
-#include <corecrt_math.h>
+#include <math.h>
 #include <stdio.h>
 #include <iostream>
 #include <vector>
