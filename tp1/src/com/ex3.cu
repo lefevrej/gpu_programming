@@ -36,9 +36,9 @@ int main(int argc, char **argv) {
 
     N = atoi(argv[1]);
 
-    float rnd_floats[N];
-    float sqrt_floats[N];
-    float sqrt_floats_cuda[N];
+    float *rnd_floats = (float*) malloc(N*sizeof(float));
+    float *sqrt_floats = (float*) malloc(N*sizeof(float));
+    float *sqrt_floats_cuda = (float*) malloc(N*sizeof(float));
 
     srand((unsigned) time(NULL));
     for (int i = 0; i < N; ++i)
@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     racine(rnd_floats, sqrt_floats);
 
     auto stop = high_resolution_clock::now();
-    duration < double > duration = stop - start;
-    printf("Time to generate: %3.7f ms\n", duration.count() * 1000.0 f);
+    duration<double> duration = stop - start;
+    printf("Time to generate: %3.7f ms\n", duration.count() * 1000.0F);
 
     ofstream myfile;
     myfile.open("cpu.txt");
@@ -61,23 +61,23 @@ int main(int argc, char **argv) {
 
     /********* CUDA 1000 blocks *********/
 
-    float * dev_rnd_floats, * dev_rnd_floats_out;
-    cudaMalloc((void ** ) & dev_rnd_floats, N * sizeof(float));
-    cudaMalloc((void ** ) & dev_rnd_floats_out, N * sizeof(float));
+    float *dev_rnd_floats, *dev_rnd_floats_out;
+    cudaMalloc((void ** ) &dev_rnd_floats, N * sizeof(float));
+    cudaMalloc((void ** ) &dev_rnd_floats_out, N * sizeof(float));
     cudaMemcpy(dev_rnd_floats, rnd_floats, N * sizeof(int), cudaMemcpyHostToDevice);
 
     float elapsedTime;
     cudaEvent_t cuda_start, cuda_stop;
-    cudaEventCreate( & cuda_start);
-    cudaEventCreate( & cuda_stop);
+    cudaEventCreate( &cuda_start);
+    cudaEventCreate( &cuda_stop);
     cudaEventRecord(cuda_start, 0);
 
-    cuda_racine_block <<< N, 1 >>> (dev_rnd_floats, dev_rnd_floats_out);
+    cuda_racine_block<<< N, 1>>> (dev_rnd_floats, dev_rnd_floats_out);
     cudaMemcpy(sqrt_floats_cuda, dev_rnd_floats_out, N * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaEventRecord(cuda_stop, 0);
     cudaEventSynchronize(cuda_stop);
-    cudaEventElapsedTime( & elapsedTime, cuda_start, cuda_stop);
+    cudaEventElapsedTime( &elapsedTime, cuda_start, cuda_stop);
     printf("Parallel time to generate:  %3.7f ms\n", elapsedTime);
     cudaEventDestroy(cuda_start);
     cudaEventDestroy(cuda_stop);
@@ -90,19 +90,19 @@ int main(int argc, char **argv) {
 
     /********* CUDA 1000 threads *********/
 
-    cudaMalloc((void**) & dev_rnd_floats_out, N * sizeof(float));
+    cudaMalloc((void**) &dev_rnd_floats_out, N * sizeof(float));
 
-    cudaEventCreate( & cuda_start);
-    cudaEventCreate( & cuda_stop);
+    cudaEventCreate( &cuda_start);
+    cudaEventCreate( &cuda_stop);
     cudaEventRecord(cuda_start, 0);
 
-    cuda_racine_thread <<< 1, N >>> (dev_rnd_floats, dev_rnd_floats_out);
+    cuda_racine_thread<<< 1, N >>>(dev_rnd_floats, dev_rnd_floats_out);
     cudaMemcpy(sqrt_floats_cuda, dev_rnd_floats_out, N * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaEventRecord(cuda_stop, 0);
     cudaEventSynchronize(cuda_stop);
 
-    cudaEventElapsedTime( & elapsedTime, cuda_start, cuda_stop);
+    cudaEventElapsedTime( &elapsedTime, cuda_start, cuda_stop);
     printf("Parallel time to generate:  %3.7f ms\n", elapsedTime);
     cudaEventDestroy(cuda_start);
     cudaEventDestroy(cuda_stop);

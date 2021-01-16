@@ -6,7 +6,7 @@
 #include <math.h>
 #include <chrono>
 
-#define N 10000
+int N;
 
 using namespace std::chrono;
 
@@ -25,12 +25,24 @@ __global__ void cuda_add_thread(float *f1, float *f2, float* f_out){
     f_out[tid] = f1[tid]+f2[tid];
 }
 
-int main() {
+int main(int argc, char **argv) {
 
-    float rnd_floats1[N];
+    if (argc != 2) {
+        printf("Usage: %s <N>\n", argv[0]);
+        exit(-1);
+    }
+
+    N = atoi(argv[1]);
+
+    /*float rnd_floats1[N];
     float rnd_floats2[N];
     float sum[N];
-    float sum_cuda[N];
+    float sum_cuda[N];*/
+
+    float *rnd_floats1 = (float*) malloc(N*sizeof(float));
+    float *rnd_floats2 = (float*) malloc(N*sizeof(float));
+    float *sum = (float*) malloc(N*sizeof(float));
+    float *sum_cuda= (float*) malloc(N*sizeof(float));
     
     /********* PAS CUDA *********/
         
@@ -45,8 +57,8 @@ int main() {
     add(rnd_floats1, rnd_floats2, sum);
     
     auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    printf( "Time to generate:  0.%03lld ms\n", duration.count());
+    duration<double> duration = stop - start;
+    printf( "Time to generate:  %3.7f ms\n", duration.count() * 1000.0F);
 
     /********* CUDA N blocks *********/
 

@@ -1,6 +1,6 @@
-#EXE=$(BDIR)/ex2.cu $(BDIR)/ex3.cu $(BDIR)/ex4.cu $(BDIR)/ex5_gpu.cu $(BDIR)/hello.cu $(BDIR)/ex5.cpp $(BDIR)/sobel_cpu.cpp
-
 EXE=$(BDIR)/sobel_cpu $(BDIR)/ex5
+CUDA=$(CUDA_SIMPLE) $(BDIR)/ex5_gpu.cu
+CUDA_SIMPLE=ex2.cu ex3.cu ex4.cu hello.cu
 CCFLAGS = -Wall -O2
 
 IDIR = ./include
@@ -10,17 +10,23 @@ CDIR = ./src/com
 LDIR = ./src/lib
 CC = gcc
 C++ = g++
-nvcc = ncvv
+NVCC = nvcc
 X11LIB = /usr/X11/lib -lX11
 
 all:	$(EXE)
+cuda:	$(CUDA)
 
 $(BDIR)/sobel_cpu:	$(CDIR)/sobel_cpu.cpp $(IDIR)/mcimage.h $(ODIR)/mcimage.o 
-	$(C++) $(CCFLAGS) -I$(IDIR) $(CDIR)/sobel_cpu.cpp $(ODIR)/mcimage.o -o $(BDIR)/sobel_cpu
+	$(C++) $(CCFLAGS) -I$(IDIR) $< $(ODIR)/mcimage.o -o $(BDIR)/sobel_cpu
 
 $(BDIR)/ex5: $(CDIR)/ex5.cpp
-	$(C++) $(CCFLAGS) $(CDIR)/ex5.cpp -L$(X11LIB) -o $(BDIR)/ex5
+	$(C++) $(CCFLAGS) $< -L$(X11LIB) -o $(BDIR)/ex5
 
+$(BDIR)/ex5_gpu.cu: $(CDIR)/ex5_gpu.cu
+	$(NVCC) $< -L$(X11LIB) -o $(BDIR)/ex5_gpu
+
+$(CUDA_SIMPLE): 
+	$(NVCC) $(CDIR)/$@ -o $(BDIR)/$(basename $@)
 
 $(ODIR)/mcimage.o:	$(LDIR)/mcimage.c $(IDIR)/mcimage.h
 	$(C++) -c $(CCFLAGS) -I$(IDIR) $(LDIR)/mcimage.c -o $(ODIR)/mcimage.o
