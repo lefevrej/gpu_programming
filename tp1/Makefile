@@ -1,5 +1,5 @@
 EXE=$(BDIR)/sobel_cpu $(BDIR)/ex5
-CUDA=$(CUDA_SIMPLE) $(BDIR)/ex5_gpu.cu
+CUDA=$(CUDA_SIMPLE) $(BDIR)/ex5_gpu.cu $(BDIR)/sobel_gpu.cu
 CUDA_SIMPLE=ex2.cu ex3.cu ex4.cu hello.cu
 CCFLAGS = -Wall -O2
 
@@ -24,6 +24,9 @@ $(BDIR)/ex5: $(CDIR)/ex5.cpp
 
 $(BDIR)/ex5_gpu.cu: $(CDIR)/ex5_gpu.cu
 	$(NVCC) $< -L$(X11LIB) -o $(BDIR)/ex5_gpu
+
+$(BDIR)/sobel_gpu.cu: $(CDIR)/sobel_gpu.cu
+	$(NVCC) -I$(IDIR) $< $(ODIR)/mcimage.o -o $(BDIR)/sobel_gpu	
 
 $(CUDA_SIMPLE): 
 	$(NVCC) $(CDIR)/$@ -o $(BDIR)/$(basename $@)

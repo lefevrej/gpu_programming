@@ -34,11 +34,6 @@ int main(int argc, char **argv) {
 
     N = atoi(argv[1]);
 
-    /*float rnd_floats1[N];
-    float rnd_floats2[N];
-    float sum[N];
-    float sum_cuda[N];*/
-
     float *rnd_floats1 = (float*) malloc(N*sizeof(float));
     float *rnd_floats2 = (float*) malloc(N*sizeof(float));
     float *sum = (float*) malloc(N*sizeof(float));

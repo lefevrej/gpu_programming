@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <iostream>
 #include <cmath>
+#include <time.h>
+#include <chrono>
+
+using namespace std::chrono;
 
 void convolve(struct xvimage *in, struct xvimage *out, const float *kernel, const int kn){
   uint32_t rs, cs;
@@ -24,8 +28,6 @@ void convolve(struct xvimage *in, struct xvimage *out, const float *kernel, cons
           newval += ptr_in[(n - j) * rs + m - i] * kernel[c];
           c++;
         }
-        if (newval < NDG_MIN) newval = NDG_MIN;
-			  if (newval > NDG_MAX) newval = NDG_MAX;
         ptr_out[n*rs+m]=(uint8_t)newval;
       }
     }
@@ -34,35 +36,25 @@ void convolve(struct xvimage *in, struct xvimage *out, const float *kernel, cons
 int sobel(struct xvimage *in, struct xvimage *out){
   int newval;
   uint32_t rs, cs;
-  uint8_t *ptr_x, *ptr_y, *ptr_out;
+  uint8_t *ptr_in, *ptr_out;
+  float dx, dy;
   rs = in->row_size;
   cs = in->col_size;
 
-  const float Gy[] = { 1, 2, 1,
-                       0, 0, 0,
-                      -1,-2,-1};
-  const float Gx[] = {-1, 0, 1,
-                    -2, 0, 2,
-                    -1, 0, 1};
-
-  struct xvimage *grad_x = allocimage(NULL, rs, cs, 1, VFF_TYP_1_BYTE);
-  struct xvimage *grad_y = copyimage(grad_x);
-  
-  convolve(in, grad_x, Gx, 3);
-  convolve(in, grad_y, Gy, 3);
-
-  ptr_x = UCHARDATA(grad_x);
-  ptr_y = UCHARDATA(grad_y);
+  ptr_in = UCHARDATA(in);
   ptr_out = UCHARDATA(out);
-  for (int i = 1; i < (int) rs - 1; i++)
-      for (int j = 1; j < (int) cs - 1; j++) {
-        const int c = i + rs * j;
-        newval = abs(ptr_x[c]) + abs(ptr_y[c]);
-			  if (newval > NDG_MAX) newval = NDG_MAX;
-        ptr_out[c] = (uint8_t) newval;
+  for (uint32_t x = 1; x < rs - 1; x++)
+      for (uint32_t y = 1; y < cs - 1; y++) {
+        if( x > 0 && y > 0 && x < rs-1 && y < cs-1) {
+          dx = (-1* ptr_in[(y-1)*rs + (x-1)]) + (-2*ptr_in[y*rs+(x-1)]) + (-1*ptr_in[(y+1)*rs+(x-1)]) +
+               (    ptr_in[(y-1)*rs + (x+1)]) + ( 2*ptr_in[y*rs+(x+1)]) + (   ptr_in[(y+1)*rs+(x+1)]);
+          dy = (    ptr_in[(y-1)*rs + (x-1)]) + ( 2*ptr_in[(y-1)*rs+x]) + (   ptr_in[(y-1)*rs+(x+1)]) +
+               (-1* ptr_in[(y+1)*rs + (x-1)]) + (-2*ptr_in[(y+1)*rs+x]) + (-1*ptr_in[(y+1)*rs+(x+1)]);
+          newval = abs(dx) + abs(dy);
+          ptr_out[y*rs + x] = newval > NDG_MAX ? NDG_MAX : newval;
+        }
       }
-  freeimage(grad_x);
-  freeimage(grad_y);
+
   return 1;
 }
 
@@ -81,10 +73,18 @@ int main(int argc, char **argv){
   }
 
   struct xvimage *out = allocimage(NULL, img->row_size, img->col_size, 1, VFF_TYP_1_BYTE);
-  if(!sobel(img, out)){
+  /*if(!sobel(img, out)){
     fprintf(stderr, "%s: function sobel failed\n",  argv[0]);
     exit(0);
-  }
+  }*/
+
+  auto start = high_resolution_clock::now(); 
+  srand((unsigned)time(NULL));
+  sobel(img, out);
+  auto stop = high_resolution_clock::now();
+  duration<double> duration = stop - start;
+  printf( "Time to generate:  %3.7f ms\n", duration.count() * 1000.0F);
+
   std::cout << argv[2] << std::endl;
   writeimage(out, argv[2]);
   freeimage(img);
