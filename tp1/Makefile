@@ -32,7 +32,7 @@ $(CUDA_SIMPLE):
 	$(NVCC) $(CDIR)/$@ -o $(BDIR)/$(basename $@)
 
 $(ODIR)/mcimage.o:	$(LDIR)/mcimage.c $(IDIR)/mcimage.h
-	$(C++) -c $(CCFLAGS) -I$(IDIR) $(LDIR)/mcimage.c -o $(ODIR)/mcimage.o
+	$(C++) -c $(CCFLAGS) -I$(IDIR) $< -o $(ODIR)/mcimage.o
 
 clean:
 	rm -rf *~ $(ODIR)/* $(IDIR)/*~ $(CDIR)/*~ $(LDIR)/*~ $(DOCDIR)/*~ 

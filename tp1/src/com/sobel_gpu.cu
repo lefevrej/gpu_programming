@@ -22,11 +22,15 @@ __global__ void sobel_gpu(unsigned char *in, unsigned char *out, const unsigned 
 
 int main(int argc, char **argv){
   struct xvimage * img;
+  int b_cnt, t_cnt; // square root of thread and block count
 
-  if (argc != 3){
-    fprintf(stderr, "usage: %s img.pgm out.pgm \n", argv[0]);
+  if (argc != 5){
+    fprintf(stderr, "usage: %s img.pgm out.pgm b_cnt t_cnt\n", argv[0]);
     exit(0);
   }
+
+  b_cnt = atoi(argv[3]);
+  t_cnt = atoi(argv[4]);
 
   img = readimage(argv[1]);  
   if (img == NULL){
@@ -41,8 +45,8 @@ int main(int argc, char **argv){
   cudaMemcpy(in, img->image_data, size, cudaMemcpyHostToDevice);
   cudaMemset(out, 0, size);
 
-  dim3 threadsPerBlock(32, 32);
-  dim3 numBlocks(16, 16);
+  dim3 threadsPerBlock(t_cnt, t_cnt);
+  dim3 numBlocks(b_cnt, b_cnt);
 
   cudaEvent_t cuda_start, cuda_stop;
   cudaEventCreate( &cuda_start);
