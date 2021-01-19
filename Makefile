@@ -35,4 +35,4 @@ $(ODIR)/mcimage.o:	$(LDIR)/mcimage.c $(IDIR)/mcimage.h
 	$(C++) -c $(CCFLAGS) -I$(IDIR) $< -o $(ODIR)/mcimage.o
 
 clean:
-	rm -rf *~ $(ODIR)/* $(IDIR)/*~ $(CDIR)/*~ $(LDIR)/*~ $(DOCDIR)/*~ 
+	rm -rf *~ $(ODIR)/* $(IDIR)/*~ $(CDIR)/*~ $(LDIR)/*~ $(DOCDIR)/*~ $(BDIR)/*
