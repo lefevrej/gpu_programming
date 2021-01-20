@@ -9,7 +9,7 @@ __global__ void sobel_gpu(unsigned char *in, unsigned char *out, const unsigned 
     int y = threadIdx.y + blockIdx.y * blockDim.y;
     float dx, dy;
     int newval;
-    //if( x > 0 && y > 0 && x < rs-1 && y < cs-1) {
+    if( x > 0 && y > 0 && x < rs-1 && y < cs-1) {
         dx = (-1* in[(y-1)*rs + (x-1)]) + (-2*in[y*rs+(x-1)]) + (-1*in[(y+1)*rs+(x-1)]) +
              (    in[(y-1)*rs + (x+1)]) + ( 2*in[y*rs+(x+1)]) + (   in[(y+1)*rs+(x+1)]);
         dy = (    in[(y-1)*rs + (x-1)]) + ( 2*in[(y-1)*rs+x]) + (   in[(y-1)*rs+(x+1)]) +
@@ -17,7 +17,7 @@ __global__ void sobel_gpu(unsigned char *in, unsigned char *out, const unsigned 
         newval = abs(dx) + abs(dy);
         if (newval > NDG_MAX) newval = NDG_MAX;
         out[y*rs + x] = newval;
-    //}
+    }
 }
 
 int main(int argc, char **argv){
