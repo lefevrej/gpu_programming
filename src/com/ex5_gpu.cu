@@ -1,4 +1,3 @@
-// nvcc -o ex5 ex5_gpu.cu -L/usr/X11/lib -lX11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <algorithm>
@@ -42,10 +41,15 @@ __global__ void kernel(unsigned char * ptr) {
     int x = blockIdx.x;
     int y = blockIdx.y;
     int offset = x + y * gridDim.x;
+
     int juliaValue = julia(x, y);
     ptr[offset] = 255 * juliaValue;
 }
 
+/**
+ * Returns coordinates so that the elements of interest are present
+ *  in the submatrix defined by these coordinates. 
+ */
 void cropped_coordinates(unsigned char *ptr, int *x_o, int *y_o, int *x_e, int *y_e){
     int x_u=DIM, y_u=DIM, x_d=0, y_d=0;
     for (int i=0; i< DIM*DIM; i++){
@@ -70,7 +74,7 @@ int main(void) {
     cudaMalloc((void ** ) &dev_bitmap, DIM * DIM * sizeof(unsigned char));
 
     dim3 grid(DIM, DIM);
-    kernel<<< grid, 1 >>> (dev_bitmap);
+    kernel<<< grid, 1 >>>(dev_bitmap);
 
     cudaMemcpy(tab, dev_bitmap, DIM * DIM * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 

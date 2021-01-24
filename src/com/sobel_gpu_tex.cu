@@ -50,9 +50,9 @@ int main(int argc, char **argv){
   /***************** Init *****************/
 
   unsigned char *dev_src, *dev_out;
-  unsigned int size = (img->row_size*img->col_size)*sizeof(unsigned  char); ///size of the image
+  unsigned int size = (img->row_size*img->col_size)*sizeof(unsigned  char); //size of the image
   cudaMalloc( (void**)&dev_src, size); // dev_src is the memory area on device for the texture
-  cudaMalloc( (void**)&dev_out, size); // dev_out is the memory are on devide for the result
+  cudaMalloc( (void**)&dev_out, size); // dev_out is the memory area on devide for the result
   //cudaChannelFormatDesc desc = cudaCreateChannelDesc<float>();
   //cudaBindTexture2D(NULL, srcImg, in, img->row_size, img->col_size, sizeof(unsigned char));
   cudaBindTexture( NULL, srcImg, dev_src, size); // bind texture with dev_src area
@@ -75,7 +75,7 @@ int main(int argc, char **argv){
   cudaEventSynchronize( cuda_stop );
   float elapsedTime;
   cudaEventElapsedTime( &elapsedTime, cuda_start, cuda_stop );
-  printf( "Parallel time to generate:  %3.7f ms\n", elapsedTime);
+  printf("Parallel time to generate:  %3.7f ms\n", elapsedTime);
 
   cudaEventDestroy( cuda_start );
   cudaEventDestroy( cuda_stop );
@@ -86,6 +86,7 @@ int main(int argc, char **argv){
   writeimage(img, argv[2]);
 
   /***************** Free and unbind *****************/
+  
   freeimage(img);
   cudaFree(dev_src);
   cudaFree(dev_out);

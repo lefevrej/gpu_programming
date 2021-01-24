@@ -1,5 +1,3 @@
-// g++ -o ex5 ex5.cpp -L/usr/X11/lib -lX11
-
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
@@ -51,6 +49,10 @@ void kernel (unsigned char * ptr){
     }
 }
 
+/**
+ * Returns coordinates so that the elements of interest are present
+ *  in the submatrix defined by these coordinates. 
+ */
 void cropped_coordinates(unsigned char *ptr, int *x_o, int *y_o, int *x_e, int *y_e){
     int x_u=N, y_u=N, x_d=0, y_d=0;
     for (int i=0; i< N*N; i++){
@@ -82,7 +84,7 @@ int main() {
     cropped_coordinates(tab, &x_u, &y_u, &x_d, &y_d);
 
     XEvent e;
-    Display *dpy = XOpenDisplay(NULL); //pointeur sur un ecran
+    Display *dpy = XOpenDisplay(NULL); //pointer on screen
     int Noir = BlackPixel(dpy, DefaultScreen(dpy));
     int Blanc = WhitePixel(dpy, DefaultScreen(dpy)); 
     
@@ -114,7 +116,7 @@ int main() {
     fclose(f);
     XFlush(dpy); //Force l'affichage
 
-    std::cin.get();
+    std::cin.get(); //Wait for input before leave program
 
     return 0;
 }

@@ -22,10 +22,10 @@ $(BDIR)/sobel_cpu:	$(CDIR)/sobel_cpu.cpp $(IDIR)/mcimage.h $(ODIR)/mcimage.o
 $(BDIR)/ex5: $(CDIR)/ex5.cpp
 	$(C++) $(CCFLAGS) $< -L$(X11LIB) -o $(BDIR)/ex5
 
-$(BDIR)/ex5_gpu.cu: $(CDIR)/ex5_gpu.cu
+$(BDIR)/ex5_gpu.cu: $(CDIR)/ex5_gpu.cu $(ODIR)/mcimage.o
 	$(NVCC) $< -L$(X11LIB) -o $(BDIR)/ex5_gpu
 
-$(BDIR)/sobel_gpu.cu: $(CDIR)/sobel_gpu.cu
+$(BDIR)/sobel_gpu.cu: $(CDIR)/sobel_gpu.cu $(ODIR)/mcimage.o
 	$(NVCC) -I$(IDIR) $< $(ODIR)/mcimage.o -o $(BDIR)/sobel_gpu	
 
 $(CUDA_SIMPLE): 
